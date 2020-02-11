@@ -5,5 +5,7 @@
 </template>
 
 <style lang="scss">
-
+#app {
+  font-family: "Quicksand", sans-serif;
+}
 </style>
