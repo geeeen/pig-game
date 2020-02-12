@@ -1,40 +1,91 @@
 <template>
   <div class="home">
     <div class="gameField">
-      <app-user-card :player="1"></app-user-card>
-      <app-user-card :player="2"></app-user-card>
-      <div class="newGame">NEW GAME</div>
-      <div class="dice">{{ dice }}</div>
-      <div class="rollDice" @click="rollDice">ROLL DICE</div>
-      <div class="hold" @click="holdScore">HOLD</div>
+      <app-user-card v-for="p in 2" :player="p" :key="p"></app-user-card>
+      <button class="newGame" @click="startNewGame" :disabled="rolling">
+        NEW GAME
+      </button>
+      <div v-show="dice" class="dice" id="dice">
+        <app-dice-image id="diceImage" :diceNumber="dice"></app-dice-image>
+      </div>
+      <button class="rollDice" @click="rollDice" :disabled="rolling">
+        ROLL DICE
+      </button>
+      <button class="hold" @click="holdScore" :disabled="rolling">HOLD</button>
+    </div>
+    <div class="alertWindow" v-if="gameEnded">
+      <div class="label">PLAYER {{ winner }} WIN!</div>
+      <div class="button">
+        <button class="okButton" @click="startNewGame">OK</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import DiceImage from "../components/DiceImage.vue";
 import UserCard from "../components/UserCard.vue";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Home",
   components: {
-    appUserCard: UserCard
+    appUserCard: UserCard,
+    appDiceImage: DiceImage
   },
   data() {
     return {
-      dice: this.getRandom()
+      dice: null,
+      rolling: false
     };
   },
+  computed: {
+    ...mapGetters(["score"]),
+    gameEnded() {
+      return this.score[0] >= 100 || this.score[1] >= 100;
+    },
+    winner() {
+      return this.score[0] >= 100 ? 1 : 2;
+    }
+  },
   methods: {
-    ...mapActions(["changePlayer", "setScore", "setCurrentScore"]),
-    rollDice() {
-      this.dice = this.getRandom();
-      if (this.dice === 1) {
-        this.setCurrentScore(0);
-        this.changePlayer();
-      } else {
-        this.setCurrentScore(this.dice);
+    ...mapActions(["newGame", "changePlayer", "setScore", "setCurrentScore"]),
+    startNewGame() {
+      if (this.gameEnded || confirm("Are you sure?")) {
+        this.dice = null;
+        this.newGame();
       }
+    },
+    rollDice() {
+      const promise = new Promise(resolve => {
+        this.rolling = true;
+
+        let deg = 0;
+        const degInterval = setInterval(() => {
+          deg += 10;
+          document.getElementById("dice").style.transform = `rotate(${deg}deg)`;
+        }, 10);
+
+        const diceInterval = setInterval(() => {
+          this.dice = this.getRandom();
+        }, 80);
+
+        setTimeout(() => {
+          clearInterval(degInterval);
+          clearInterval(diceInterval);
+          this.rolling = false;
+          resolve();
+        }, 1800);
+      });
+
+      promise.then(() => {
+        if (this.dice === 1) {
+          this.setCurrentScore(0);
+          this.changePlayer();
+        } else {
+          this.setCurrentScore(this.dice);
+        }
+      });
     },
     holdScore() {
       this.setScore();
@@ -74,6 +125,8 @@ export default {
     height: 5%;
     margin: 15px 44%;
     font-size: 20px;
+    border: none;
+    background-color: initial;
     cursor: pointer;
     &:hover {
       font-size: 19px;
@@ -81,17 +134,21 @@ export default {
   }
 
   .dice {
-    $diceSize: 100px;
+    $diceSize: 120px;
+    $ySize: 200px;
+    $xSize: 100px;
     @include centered;
     position: absolute;
     margin: auto;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+    top: $ySize;
+    left: $xSize;
+    bottom: $ySize;
+    right: $xSize;
     width: $diceSize;
     height: $diceSize;
-    background-color: lightgreen;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px lightgrey;
   }
 
   .rollDice {
@@ -101,6 +158,38 @@ export default {
   .hold {
     @extend .newGame;
     margin-top: 480px;
+  }
+  .alertWindow {
+    position: absolute;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    height: 570px;
+    background-color: #ffcfcf;
+    box-shadow: 0 0 5px red;
+    .label {
+      font-size: 100px;
+    }
+    .button {
+      @include centered;
+    }
+    .okButton {
+      width: 150px;
+      height: 50px;
+      border: none;
+      box-shadow: 0 0 5px red;
+      border-radius: 10px;
+      background-color: lightcoral;
+      font-size: 24px;
+      cursor: pointer;
+      &:hover {
+        font-size: 22px;
+      }
+    }
+    @media (max-width: 1000px) {
+      width: 85%;
+    }
   }
 }
 </style>

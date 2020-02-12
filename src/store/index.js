@@ -15,6 +15,11 @@ export default new Vuex.Store({
     currentScore: state => state.currentScore
   },
   mutations: {
+    newGame: state => {
+      state.activePlayer = Math.round(Math.random());
+      state.score = [0, 0];
+      state.currentScore = [0, 0];
+    },
     changePlayer: state => {
       state.activePlayer === 0
         ? (state.activePlayer = 1)
@@ -40,6 +45,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    newGame: ({ commit }) => {
+      commit("newGame");
+    },
     changePlayer: ({ commit }) => {
       commit("changePlayer");
     },

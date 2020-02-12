@@ -26,7 +26,7 @@ export default {
   computed: {
     ...mapGetters(["activePlayer", "score", "currentScore"]),
     active() {
-      return this.player === this.activePlayer + 1;
+      return this.player === Number.parseInt(this.activePlayer) + 1;
     }
   }
 };
@@ -46,11 +46,14 @@ $lightRed: #ff2c2c;
     @include centered;
     .player {
       font-size: 40px;
+      @media (max-width: 1000px) {
+        font-size: 25px;
+      }
     }
     .dot {
       height: 15px;
       width: 15px;
-      margin: 10px;
+      margin: 0 10px;
       background-color: $lightRed;
       border-radius: 50%;
     }
@@ -75,6 +78,9 @@ $lightRed: #ff2c2c;
         font-size: 35px;
         text-align: center;
         color: white;
+      }
+      @media (max-width: 1000px) {
+        width: 90px;
       }
     }
   }
