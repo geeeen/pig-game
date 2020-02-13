@@ -50,9 +50,7 @@ describe("Home.vue", () => {
     expect(wrapper.find(".alertWindow").exists()).toBe(false);
     store.commit("setScore");
     wrapper.vm.$nextTick(() => {
-      const alertWindow = wrapper.find(".alertWindow");
-      expect(alertWindow.exists()).toBe(true);
-      expect(alertWindow.find("button").exists()).toBe(true);
+      expect(wrapper.find(".alertWindow").exists()).toBe(true);
       done();
     });
   });

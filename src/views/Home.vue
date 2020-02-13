@@ -13,12 +13,14 @@
       </button>
       <button class="hold" @click="holdScore" :disabled="rolling">HOLD</button>
     </div>
-    <div class="alertWindow" v-if="gameEnded">
-      <div class="label">PLAYER {{ winner }} WIN!</div>
-      <div class="button">
-        <button class="okButton" @click="startNewGame">OK</button>
+    <transition name="scale">
+      <div class="alertWindow" v-if="gameEnded">
+        <div class="label">PLAYER {{ winner }} WIN!</div>
+        <div class="button">
+          <button class="okButton" @click="startNewGame">OK</button>
+        </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -189,6 +191,31 @@ export default {
     }
     @media (max-width: 1000px) {
       width: 85%;
+    }
+  }
+
+  .scale-enter-active {
+    animation: scale-in ease-out 0.5s;
+  }
+  .scale-leave-active {
+    animation: scale-out ease-out 0.5s;
+  }
+
+  @keyframes scale-in {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes scale-out {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(0);
     }
   }
 }
